@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Encapsulate field &apos;com.mhframework.MHGame.debugMode&apos; in &apos;com.mhframework.MHGame&apos;&#x0D;&#x0A;- Original project: &apos;MHF&apos;&#x0D;&#x0A;- Original element: &apos;com.mhframework.MHGame.debugMode&apos;&#x0D;&#x0A;- Getter method name: &apos;isDebugMode&apos;&#x0D;&#x0A;- Setter method name: &apos;setDebugMode&apos;&#x0D;&#x0A;- Field visibility: &apos;public&apos;&#x0D;&#x0A;- Use getter and setter methods in declaring type&#x0D;&#x0A;- Generate method comments" comments="true" declaring="true" description="Encapsulate field &apos;debugMode&apos;" flags="589830" getter="isDebugMode" id="org.eclipse.jdt.ui.self.encapsulate" input="/src&lt;com.mhframework{MHGame.java[MHGame^debugMode" insertion="10" setter="setDebugMode" stamp="1394350662147" version="1.0" visibility="1"/>
+</session>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;com.mhframework.ui.HUDElementState&apos; to &apos;SlideOutState&apos;&#x0D;&#x0A;- Original project: &apos;MHF&apos;&#x0D;&#x0A;- Original element: &apos;com.mhframework.ui.HUDElementState&apos;&#x0D;&#x0A;- Renamed element: &apos;com.mhframework.ui.SlideOutState&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update fully qualified names in &apos;*&apos; files&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;HUDElementState&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;com.mhframework.ui{MHSlideOutPanel.java[HUDElementState" matchStrategy="1" name="SlideOutState" patterns="*" qualified="true" references="true" similarDeclarations="false" stamp="1390205132568" textual="true" version="1.0"/>
+</session>

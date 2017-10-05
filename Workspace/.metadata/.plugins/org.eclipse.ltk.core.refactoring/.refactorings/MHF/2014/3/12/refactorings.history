@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename field &apos;cancelled&apos; in &apos;com.mhframework.ui.MHOpenFileDialog&apos; to &apos;finished&apos;&#x0D;&#x0A;- Original project: &apos;MHF&apos;&#x0D;&#x0A;- Original element: &apos;com.mhframework.ui.MHOpenFileDialog.cancelled&apos;&#x0D;&#x0A;- Renamed element: &apos;com.mhframework.ui.MHOpenFileDialog.finished&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" delegate="false" deprecate="false" description="Rename field &apos;cancelled&apos;" flags="589826" getter="false" id="org.eclipse.jdt.ui.rename.field" input="/src&lt;com.mhframework.ui{MHOpenFileDialog.java[MHOpenFileDialog^cancelled" name="finished" references="true" setter="false" stamp="1394956019722" textual="true" version="1.0"/>
+</session>

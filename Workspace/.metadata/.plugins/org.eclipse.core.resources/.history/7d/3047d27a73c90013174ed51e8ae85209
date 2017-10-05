@@ -1,0 +1,653 @@
+package com.mhframework.gameplay.tilemap.view;
+
+import com.mhframework.core.math.MHVector;
+import com.mhframework.gameplay.MHGameWorldData;
+import com.mhframework.gameplay.actor.MHActor;
+import com.mhframework.gameplay.actor.MHActorList;
+import com.mhframework.gameplay.tilemap.MHLayersEnum;
+import com.mhframework.gameplay.tilemap.MHMapCellAddress;
+import com.mhframework.gameplay.tilemap.MHTile;
+import com.mhframework.gameplay.tilemap.MHTileMapDirection;
+import com.mhframework.platform.graphics.MHBitmapImage;
+import com.mhframework.platform.graphics.MHGraphicsCanvas;
+
+/********************************************************************
+ * Abstract base class for deriving isometric tile maps.
+ * 
+ * @author Michael Henson
+ */
+public abstract class MHIsometricMapView extends MHTileMapView
+{
+    protected MHVector cursorAnchor = new MHVector();
+    private MHActorList renderList = new MHActorList();
+
+    public MHIsometricMapView(MHGameWorldData data) 
+    {
+        super(data);
+    }
+
+
+
+    protected MHIsoMouseMap mouseMap = MHIsoMouseMap.getInstance();
+
+    public MHVector calculateBasePoint(MHActor actor)
+    {
+        MHVector p = new MHVector();
+        p.setX(actor.getX() + (actor.getWidth() / 2));
+        p.setY(actor.getY() + actor.getHeight() - (getTileHeight()/2));
+        return p;
+    }
+
+
+    /****************************************************************
+     * Calculates the next map position to which an actor would walk
+     * if it were in position (<i>row</i>, <i>column</i>) and
+     * traveled in the direction specified by <i>direction</i>.
+     *
+     * @param row
+     *            The actor's current row position.
+     * @param column
+     *            The actor's current column position.
+     * @param direction
+     *            The direction in which to walk.
+     *
+     * @return A point indicating the actor's new column and row
+     *         position after walking from its original position.
+     */
+    public abstract MHMapCellAddress tileWalk(int row, int column,
+            MHTileMapDirection direction);
+
+
+    /****************************************************************
+     * Calculates the next map position to which an actor would walk
+     * if it were in the position specified by <i>origin</i> and
+     * travelled in the direction specified by <i>direction</i>.
+     *
+     * @param origin
+     *            The actor's current map cell position.
+     * @param direction
+     *            The direction in which to walk.
+     *
+     * @return A point indicating the actor's new column and row
+     *         position after walking from its original position.
+     */
+    public MHMapCellAddress tileWalk(
+            final MHMapCellAddress origin, final MHTileMapDirection direction)
+    {
+        if (origin == null)
+            return null;
+
+        return tileWalk(origin.row, origin.column, direction);
+    }
+
+
+    /****************************************************************
+     * Returns the vertical height of the standard base tile image in
+     * this tile map.
+     *
+     * @return The height of the standard base tile in this map.
+     */
+    @Override
+    public int getTileHeight()
+    {
+        return getTileWidth() / 2;
+    }
+
+
+    /****************************************************************
+     * Converts a screen (mouse) coordinate into a map coordinate.
+     * Uses the five-step mouse mapping algorithm presented in the
+     * book <i>Isometric Game Programming with DirectX 7.0</i> by
+     * Ernest Pazera.
+     *
+     * @param mousePoint
+     *            A point representing a mouse coordinate.
+     *
+     * @return The address of the map cell containing the input mouse
+     *         coordinate.
+     */
+    @Override
+    public MHMapCellAddress mapMouse(final MHVector mousePoint)
+    {
+
+        // ///////////////////////////////////////////////////////////
+        // Step #1: Convert Screen Coordinates to World Coordinates
+        // ///////////////////////////////////////////////////////////
+
+        MHVector worldPoint = screenToWorld(mousePoint);
+
+        // ///////////////////////////////////////////////////////////
+        // Step #2: Subtract World Coordinates for the Upper Left of
+        // the Map Position (0, 0)
+        // ///////////////////////////////////////////////////////////
+
+        // calculate reference point -- Point relative to mouse map
+        MHVector refPoint = plotTile(0, 0);
+
+        refPoint = refPoint.add(refPoint);
+
+        // subtract reference point
+        worldPoint = worldPoint.subtract(refPoint);
+
+        // ///////////////////////////////////////////////////////////
+        // Step #3: Determine Mouse Map Coordinates
+        // ///////////////////////////////////////////////////////////
+
+        // coarse coordinates -- Estimate which cell we're near
+        final MHMapCellAddress mouseMapCoarse = new MHMapCellAddress();
+        mouseMapCoarse.column = (int) (worldPoint.getX() / MHIsoMouseMap.getInstance().getWidth());
+        mouseMapCoarse.row = (int) (worldPoint.getY() / MHIsoMouseMap.getInstance().getHeight());
+
+        // fine coordinates -- Where are we relative to the coarse
+        // cell?
+        final MHVector mouseMapFine = new MHVector();
+        mouseMapFine.setX(worldPoint.getX() % MHIsoMouseMap.getInstance().getWidth());
+        mouseMapFine.setY(worldPoint.getY() % MHIsoMouseMap.getInstance().getHeight());
+
+        // adjust for negative fine coordinates
+        if (mouseMapFine.getX() < 0)
+        {
+            mouseMapFine.setX(mouseMapFine.getX() + MHIsoMouseMap.getInstance().getWidth());
+            mouseMapCoarse.column--;
+        }
+
+        if (mouseMapFine.getY() < 0)
+        {
+            mouseMapFine.setY(mouseMapFine.getY() + MHIsoMouseMap.getInstance().getHeight());
+            mouseMapCoarse.row--;
+        }
+
+        MHMapCellAddress mapAddress = new MHMapCellAddress();
+        mapAddress.row = 0;
+        mapAddress.column = 0;
+
+        // ///////////////////////////////////////////////////////////
+        // Step #4: Perform a Coarse Tile Walk
+        // ///////////////////////////////////////////////////////////
+
+        // North
+        while (mouseMapCoarse.row < 0)
+        {
+            mapAddress = tileWalk(mapAddress, MHTileMapDirection.NORTH);
+            mouseMapCoarse.row++;
+        }
+
+        // South
+        while (mouseMapCoarse.row > 0)
+        {
+            mapAddress = tileWalk(mapAddress, MHTileMapDirection.SOUTH);
+            mouseMapCoarse.row--;
+        }
+
+        // West
+        while (mouseMapCoarse.column < 0)
+        {
+            mapAddress = tileWalk(mapAddress, MHTileMapDirection.WEST);
+            mouseMapCoarse.column++;
+        }
+
+        // East
+        while (mouseMapCoarse.column > 0)
+        {
+            mapAddress = tileWalk(mapAddress, MHTileMapDirection.EAST);
+            mouseMapCoarse.column--;
+        }
+
+        // ///////////////////////////////////////////////////////////
+        // Step #5: Use the Mouse Map Lookup Table
+        // ///////////////////////////////////////////////////////////
+
+        // Figure out which direction the fine coordinates indicate
+        final MHTileMapDirection mouseMapDirection = mouseMap.getDirection(
+                mouseMapFine.getX(), mouseMapFine.getY());
+
+        // Walk in the direction specified above
+        mapAddress = tileWalk(mapAddress, mouseMapDirection);
+
+        // return map coordinate
+        return mapAddress;
+    }
+
+
+
+    /****************************************************************
+     * Renders the map onto the sent Graphics object using an
+     * optimized algorithm.
+     *
+     * @param g
+     *            The graphics object on which we are rendering the
+     *            map.
+     */
+    @Override
+    public void render(final MHGraphicsCanvas g, MHActorList actors)
+    {
+        MHMapCellAddress upperRight = new MHMapCellAddress(), 
+                upperLeft = new MHMapCellAddress(), 
+                lowerRight = new MHMapCellAddress(), 
+                lowerLeft = new MHMapCellAddress();
+        final MHMapCellAddress mouseMapCoarse = new MHMapCellAddress();
+        MHMapCellAddress mapAddress;
+        MHVector screenPoint, worldPoint, refPoint;
+
+        // ///////////////////////////////////////////////////////////
+        // //
+        // // Preperatory Stage
+        // //
+        // ///////////////////////////////////////////////////////////
+
+        // /////////////////////////////
+        // UPPER LEFT CORNER:
+        // /////////////////////////////
+
+        // screen point
+        screenPoint = new MHVector(screenSpace.x, screenSpace.y);
+
+        // change into world coordinate
+        worldPoint = screenToWorld(screenPoint);
+
+        // adjust by mouse map reference point
+        refPoint = plotTile(0, 0);
+
+        refPoint = refPoint.add(refPoint);
+
+        // subtract reference point
+        worldPoint.subtract(refPoint);
+
+        // Calculate coarse coordinates
+        mouseMapCoarse.column = (int) (worldPoint.getX() / MHIsoMouseMap.getInstance().getWidth());
+        mouseMapCoarse.row = (int) (worldPoint.getY() / MHIsoMouseMap.getInstance().getHeight());
+
+        if (worldPoint.getX() % MHIsoMouseMap.getInstance().getWidth() < 0)
+            mouseMapCoarse.column--;
+
+        if (worldPoint.getY() % MHIsoMouseMap.getInstance().getHeight() < 0)
+            mouseMapCoarse.row--;
+
+        // Initialize map address
+        mapAddress = tileWalk(0, 0, MHTileMapDirection.EAST);
+        mapAddress.row *= mouseMapCoarse.column;
+        mapAddress.column *= mouseMapCoarse.column;
+
+        upperLeft = new MHMapCellAddress();
+        upperLeft.row = mapAddress.row;
+        upperLeft.column = mapAddress.column;
+
+        // Reset map point
+        mapAddress = tileWalk(0, 0, MHTileMapDirection.SOUTH);
+        mapAddress.row *= mouseMapCoarse.row;
+        mapAddress.column *= mouseMapCoarse.row;
+
+        upperLeft.row += mapAddress.row;
+        upperLeft.column += mapAddress.column;
+
+        // /////////////////////////////
+        // UPPER RIGHT CORNER
+        // /////////////////////////////
+
+        // screen point
+        screenPoint.setX(screenSpace.width - 1);
+        screenPoint.setY(screenSpace.height);
+
+        // change into world coordinate
+        worldPoint = screenToWorld(screenPoint);
+
+        // adjust by mousemap reference point
+        worldPoint.x -= refPoint.x;
+        worldPoint.y -= refPoint.y;
+
+        // calculate coarse coordinates
+        mouseMapCoarse.row = (int) (worldPoint.y / MHIsoMouseMap.getInstance().getHeight());
+        mouseMapCoarse.column = (int) (worldPoint.x / MHIsoMouseMap.getInstance().getWidth());
+
+        // adjust for negative remainders
+        if (worldPoint.x % MHIsoMouseMap.getInstance().getWidth() < 0)
+        {
+            mouseMapCoarse.column--;
+        }
+
+        if (worldPoint.y % MHIsoMouseMap.getInstance().getHeight() < 0)
+        {
+            mouseMapCoarse.row--;
+        }
+
+        // do eastward tilewalk
+        mapAddress = tileWalk(0, 0, MHTileMapDirection.EAST);
+        mapAddress.row *= mouseMapCoarse.column;
+        mapAddress.column *= mouseMapCoarse.column;
+
+        // assign ptmap to corner point
+        upperRight.row = mapAddress.row;
+        upperRight.column = mapAddress.column;
+
+        // do southward tilewalk
+        mapAddress = tileWalk(0, 0, MHTileMapDirection.SOUTH);
+        mapAddress.row *= mouseMapCoarse.row;
+        mapAddress.column *= mouseMapCoarse.row;
+
+        // add mapAddress to corner point
+        upperRight.row += mapAddress.row;
+        upperRight.column += mapAddress.column;
+
+        // /////////////////////////////
+        // LOWER LEFT CORNER
+        // /////////////////////////////
+
+        // screen point
+        screenPoint.x = screenSpace.x;
+        screenPoint.y = screenSpace.height;
+
+        // change into world coordinate
+        worldPoint = screenToWorld(screenPoint);
+
+        // adjust by mousemap reference point
+        worldPoint.x -= refPoint.x;
+        worldPoint.y -= refPoint.y;
+
+        // calculate coarse coordinates
+        mouseMapCoarse.row = (int) (worldPoint.y / MHIsoMouseMap.getInstance().getHeight());
+        mouseMapCoarse.column = (int) (worldPoint.x / MHIsoMouseMap.getInstance().getWidth());
+
+        // adjust for negative remainders
+        if (worldPoint.x % MHIsoMouseMap.getInstance().getWidth() < 0)
+            mouseMapCoarse.column--;
+
+        if (worldPoint.y % MHIsoMouseMap.getInstance().getHeight() < 0)
+            mouseMapCoarse.row--;
+
+        // do eastward tilewalk
+        mapAddress = tileWalk(0, 0, MHTileMapDirection.EAST);
+        mapAddress.row *= mouseMapCoarse.column;
+        mapAddress.column *= mouseMapCoarse.column;
+
+        // assign ptmap to corner point
+        lowerLeft.row = mapAddress.row;
+        lowerLeft.column = mapAddress.column;
+
+        // do southward tilewalk
+        mapAddress = tileWalk(0, 0, MHTileMapDirection.SOUTH);
+        mapAddress.row *= mouseMapCoarse.row;
+        mapAddress.column *= mouseMapCoarse.row;
+
+        // add ptmap to corner point
+        lowerLeft.row += mapAddress.row;
+        lowerLeft.column += mapAddress.column;
+
+        // /////////////////////////////
+        // LOWER RIGHT CORNER
+        // /////////////////////////////
+
+        // screen point
+        screenPoint.x = screenSpace.width - 1;
+        screenPoint.y = screenSpace.height - 1;
+
+        // change into world coordinate
+        worldPoint = screenToWorld(screenPoint);
+
+        // adjust by mousemap reference point
+        worldPoint.x -= refPoint.x;
+        worldPoint.y -= refPoint.y;
+
+        // calculate coarse coordinates
+        mouseMapCoarse.row = (int) (worldPoint.y / MHIsoMouseMap.getInstance().getHeight());
+        mouseMapCoarse.column = (int) (worldPoint.x / MHIsoMouseMap.getInstance().getWidth());
+
+        // adjust for negative remainders
+        if (worldPoint.x % MHIsoMouseMap.getInstance().getWidth() < 0)
+        {
+            mouseMapCoarse.column--;
+
+        }
+        if (worldPoint.y % MHIsoMouseMap.getInstance().getHeight() < 0)
+        {
+            mouseMapCoarse.row--;
+
+            // do eastward tilewalk
+        }
+        mapAddress = tileWalk(0, 0, MHTileMapDirection.EAST);
+        mapAddress.row *= mouseMapCoarse.column;
+        mapAddress.column *= mouseMapCoarse.column;
+
+        // assign mapAddress to corner point
+        lowerRight.row = mapAddress.row;
+        lowerRight.column = mapAddress.column;
+
+        // do southward tilewalk
+        mapAddress = tileWalk(0, 0, MHTileMapDirection.SOUTH);
+        mapAddress.row *= mouseMapCoarse.row;
+        mapAddress.column *= mouseMapCoarse.row;
+
+        // add mapAddress to corner point
+        lowerRight.row += mapAddress.row;
+        lowerRight.column += mapAddress.column;
+
+        // tilewalk from corners
+        upperLeft = tileWalk(upperLeft, MHTileMapDirection.NORTHWEST);
+        upperRight = tileWalk(upperRight, MHTileMapDirection.NORTHEAST);
+        lowerLeft = tileWalk(lowerLeft, MHTileMapDirection.SOUTHWEST);
+        lowerRight = tileWalk(lowerRight, MHTileMapDirection.SOUTHEAST);
+
+        // ///////////////////////////////////////////////////////////
+        // //
+        // // Rendering Loop
+        // //
+        // ///////////////////////////////////////////////////////////
+
+        MHMapCellAddress currentAddress = new MHMapCellAddress();
+        MHMapCellAddress startAddress = new MHMapCellAddress();
+        MHMapCellAddress endAddress = new MHMapCellAddress();
+        int rowCount = 0;
+        renderList.clear();
+
+        //MHMapCell mapCell;
+        //MHActor tile;
+
+        // Variables used in rendering loop. Placed here to reduce
+        // the number of method calls performed during rendering.
+        final MHGameWorldData mapData = getMapData();
+        final int mapWidth = mapData.getWorldWidth();
+        final int mapHeight = mapData.getWorldHeight();
+        final int tileWidth = getTileWidth();
+        final int tileHeight = getTileHeight();
+
+        // set up rows
+        startAddress.row = upperLeft.row;
+        startAddress.column = upperLeft.column;
+
+        endAddress.row = upperRight.row;
+        endAddress.column = upperRight.column;
+
+        // Render floor and floor decals
+        for (int layer = 0; layer < MHLayersEnum.values().length; layer++)
+        {
+            if (layer == MHLayersEnum.ACTORS.getID() || layer == MHLayersEnum.WALL_DECALS.getID())
+                continue;
+            else
+            {
+                for (;;)
+                {
+                    // "infinite" loop for rows
+                    // set current point to rowstart
+                    currentAddress.row = startAddress.row;
+                    currentAddress.column = startAddress.column;
+
+                    // render a row of tiles
+                    for (;;)
+                    {
+                        // check for valid point. if valid, render
+                        if (currentAddress.column >= 0 && currentAddress.row >= 0 && 
+                                currentAddress.column < mapWidth && currentAddress.row < mapHeight)
+                        {
+                            // Get the tile to be rendered
+                            MHTile tile = getMapData().getLayer(layer).getTile(currentAddress.row, currentAddress.column);
+                            if (tile.image != null)
+                            {
+                                if (layer == MHLayersEnum.FLOOR.getID())
+                                    renderBaseTile(g, tile.image, currentAddress.row, currentAddress.column);
+                                else if (layer == MHLayersEnum.FLOOR_DECALS.getID())
+                                    plotCoarse(g, tile.image, currentAddress.row, currentAddress.column);
+                                else
+                                {
+                                    MHActor wall = new MHActor(tile.image.getImageID());
+                                    // TODO: Set wall's (x, y) location.
+                                    renderList.add(wall);
+                                }
+                            }
+                            // if the current (row, column) is the
+                            // one selected by the
+                            // cursor, save its plot coordinates
+                            if (cursorAddress.row == currentAddress.row
+                                    && cursorAddress.column == currentAddress.column)
+                            {
+                                cursorAnchor.setX(screenPoint.x);
+                                cursorAnchor.setY(screenPoint.y
+                                        + tile.image
+                                        .getHeight()
+                                        - tileHeight);
+                            }
+                        } // if valid point
+
+                        // check if at end of row. if we are, break out of
+                        // inner loop
+                        if (currentAddress.column == endAddress.column
+                                && currentAddress.row == endAddress.row)
+                        {
+                            break;
+                        }
+
+                        // walk east to next tile
+                        currentAddress = tileWalk(currentAddress,
+                                MHTileMapDirection.EAST);
+                    } // render a row
+
+                    // check to see if we are at the last row. if we are,
+                    // break out of
+                    // the loop
+                    if (startAddress.column == lowerLeft.column
+                            && startAddress.row == lowerLeft.row)
+                    {
+                        break;
+                    }
+
+                    // move the row start and end points, based on the row
+                    // number
+                    if (rowCount % 2 != 0)
+                    {
+                        // odd
+                        // start moves SW, end moves SE
+                        startAddress = tileWalk(startAddress,
+                                MHTileMapDirection.SOUTHWEST);
+                        endAddress = tileWalk(endAddress, MHTileMapDirection.SOUTHEAST);
+                    }
+                    else
+                    {
+                        // even
+                        // start moves SE, end moves SW
+                        startAddress = tileWalk(startAddress,
+                                MHTileMapDirection.SOUTHEAST);
+                        endAddress = tileWalk(endAddress, MHTileMapDirection.SOUTHWEST);
+                    }
+
+                    // increase the row number
+                    rowCount++;
+                } // end rendering loop
+            }
+        } // end layers loop
+        
+        // Merge the render list with the actors.
+        renderList = renderList.merge(actors);
+        
+        // TODO:  Draw sorted actors here.
+        for (int i = 0; i < renderList.size(); i++)
+        {
+            MHActor a = renderList.get(i);
+            
+        }
+    }
+
+
+    public MHVector plotCoarse(MHActor actor, int row, int column)
+    {
+        // Calculate plot coordinates.
+        MHVector screenPoint = plotTile(row, column);
+
+        // Translate to the base tile's center point
+        screenPoint.x += (getTileWidth() / 2);
+        screenPoint.y += getTileHeight();
+
+        // Calculate its position relative to the base tile.
+        screenPoint.x -= actor.getWidth() / 2;
+        screenPoint.y -= actor.getHeight();
+
+        renderFine(g, image, (int)screenPoint.x, (int)screenPoint.y);
+    }
+
+
+    public void renderFine(MHGraphicsCanvas g, MHBitmapImage image, int x, int y)
+    {        
+        // Adjust for screen anchor to enable scrolling
+        x -= screenAnchor.getX();
+        y -= screenAnchor.getY();
+
+        // Draw the tile
+        g.drawImage(image, x, y);
+    }
+
+
+    public void renderBaseTile(MHGraphicsCanvas g, MHBitmapImage image, int row, int column)
+    {
+        // Calculate plot coordinates.
+        MHVector screenPoint = plotTile(row, column);
+
+        // Adjust for screen anchor to enable scrolling.
+        screenPoint = screenPoint.subtract(screenAnchor);
+
+        // Draw the tile image.
+        g.drawImage(image, (int)screenPoint.x, (int)screenPoint.y);
+    }
+
+
+    /****************************************************************
+     * Centers the view space on the map cell specified by the row
+     * and column parameters.
+     * 
+     * @param row
+     * @param column
+     */
+    public void centerOnMapCell(int row, int column)
+    {
+        MHVector p = plotTile(row, column);
+        int width = getScreenSpace().width;
+        int height = getScreenSpace().height;
+        int x = (int) (p.getX() - width/2 + getTileWidth()/2);
+        int y = (int) (p.getY() - height/2);
+        setScreenAnchor(x, y);
+    }
+
+
+    /****************************************************************
+     * Centers the view space on the pixel position specified by the
+     * parameters.
+     * 
+     * @param x
+     * @param y
+     */
+    public void centerOnPixel(int x, int y)
+    {
+        int width = super.getScreenSpace().width;
+        int height = super.getScreenSpace().height;
+        int ax = x - width/2;
+        int ay = y - height/2;
+        setScreenAnchor(ax, ay);
+    }
+
+
+    public MHActorList buildRenderList()
+    {
+        MHActorList list = new MHActorList();
+        MHGameWorldData map = getMapData();
+
+        list.sort();
+
+        return list;
+    }
+}

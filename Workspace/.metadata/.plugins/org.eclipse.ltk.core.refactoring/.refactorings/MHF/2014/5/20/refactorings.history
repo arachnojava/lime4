@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename method &apos;com.mhframework.gameplay.tilemap.view.MHIsometricMapView.renderLayer(...)&apos; to &apos;renderCompleteLayer&apos;&#x0D;&#x0A;- Original project: &apos;MHF&apos;&#x0D;&#x0A;- Original element: &apos;com.mhframework.gameplay.tilemap.view.MHIsometricMapView.renderLayer(...)&apos;&#x0D;&#x0A;- Renamed element: &apos;com.mhframework.gameplay.tilemap.view.MHIsometricMapView.renderCompleteLayer(...)&apos;&#x0D;&#x0A;- Update references to refactored element" delegate="false" deprecate="false" description="Rename method &apos;renderLayer&apos;" flags="589826" id="org.eclipse.jdt.ui.rename.method" input="/src&lt;com.mhframework.gameplay.tilemap.view{MHIsometricMapView.java[MHIsometricMapView~renderLayer~QMHGraphicsCanvas;~QMHTileGrid;~QMHVector;" name="renderCompleteLayer" references="true" stamp="1399780493096" version="1.0"/>
+</session>

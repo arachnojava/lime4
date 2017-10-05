@@ -1,0 +1,6 @@
+1397371780576	Change method 'renderVisibleTiles'
+1397375901249	Extract interface 'MHUpdatable'
+1397630369975	Extract method 'extracted'
+1397690756607	Infer generic type arguments
+1397712392317	Rename method 'getActors'
+1397712599865	Rename field 'ACTOR_FILE'

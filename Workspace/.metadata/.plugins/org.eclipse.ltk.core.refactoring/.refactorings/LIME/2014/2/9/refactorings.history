@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;PAL_MODE_SIZE&apos; in &apos;LIMEEditorScreen.init()&apos; to &apos;BUTTON_SIZE&apos;&#x0D;&#x0A;- Original project: &apos;LIME&apos;&#x0D;&#x0A;- Original element: &apos;LIMEEditorScreen.init().PAL_MODE_SIZE&apos;&#x0D;&#x0A;- Renamed element: &apos;PAL_MODE_SIZE&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;PAL_MODE_SIZE&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;{LIMEEditorScreen.java[LIMEEditorScreen~init@PAL_MODE_SIZE!7570!7672!7654!7666!I!67108880!false" name="BUTTON_SIZE" references="true" stamp="1393284254836" version="1.0"/>
+</session>

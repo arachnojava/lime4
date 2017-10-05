@@ -1,0 +1,37 @@
+{
+  "C:\\Users\\d01052702\\Desktop\\Dropbox\\Dev\\LIME4\\Workspace\\MHF\\src": {
+    "location": "C:\\Users\\d01052702\\Desktop\\Dropbox\\Dev\\LIME4\\Workspace\\MHF\\src",
+    "status": "UNRESOLVED",
+    "error": "No class path info available for \u0027C:\\Users\\d01052702\\Desktop\\Dropbox\\Dev\\LIME4\\Workspace\\MHF\\src\u0027. Skipped."
+  },
+  "C:\\Program Files\\Java\\jre7\\lib\\rt.jar": {
+    "coordinate": "jre:jre:zip:call:1.0.0",
+    "location": "C:\\Program Files\\Java\\jre7\\lib\\rt.jar",
+    "status": "RESOLVED"
+  },
+  "C:\\Users\\d01052702\\Desktop\\Dropbox\\Dev\\LIME4\\Workspace\\LIME\\src": {
+    "location": "C:\\Users\\d01052702\\Desktop\\Dropbox\\Dev\\LIME4\\Workspace\\LIME\\src",
+    "status": "UNRESOLVED",
+    "error": "No class path info available for \u0027C:\\Users\\d01052702\\Desktop\\Dropbox\\Dev\\LIME4\\Workspace\\LIME\\src\u0027. Skipped."
+  },
+  "C:\\Program Files\\Eclipse\\android\\platforms\\android-15\\android.jar": {
+    "location": "C:\\Program Files\\Eclipse\\android\\platforms\\android-15\\android.jar",
+    "status": "UNRESOLVED",
+    "error": "No call model found for \u0027C:\\Program Files\\Eclipse\\android\\platforms\\android-15\\android.jar\u0027. Neither fingerprint \u002792822ec981a4d0a7f002c792e7b3b60f9a1f26fa\u0027 nor symbolic name \u0027android\u0027 are known."
+  },
+  "C:\\Users\\Michael\\Desktop\\My Dropbox\\Dev\\LIME4\\Workspace\\MHF\\src": {
+    "location": "C:\\Users\\Michael\\Desktop\\My Dropbox\\Dev\\LIME4\\Workspace\\MHF\\src",
+    "status": "UNRESOLVED",
+    "error": "No class path info available for \u0027C:\\Users\\Michael\\Desktop\\My Dropbox\\Dev\\LIME4\\Workspace\\MHF\\src\u0027. Skipped."
+  },
+  "C:\\AndroidSDK\\platforms\\android-17\\android.jar": {
+    "location": "C:\\AndroidSDK\\platforms\\android-17\\android.jar",
+    "status": "UNRESOLVED",
+    "error": "No call model found for \u0027C:\\AndroidSDK\\platforms\\android-17\\android.jar\u0027. Neither fingerprint \u0027322db3959c3383f4be9daa75ffa427d1485879ad\u0027 nor symbolic name \u0027android\u0027 are known."
+  },
+  "C:\\Users\\Michael\\Desktop\\My Dropbox\\Dev\\LIME4\\Workspace\\LIME\\src": {
+    "location": "C:\\Users\\Michael\\Desktop\\My Dropbox\\Dev\\LIME4\\Workspace\\LIME\\src",
+    "status": "UNRESOLVED",
+    "error": "No class path info available for \u0027C:\\Users\\Michael\\Desktop\\My Dropbox\\Dev\\LIME4\\Workspace\\LIME\\src\u0027. Skipped."
+  }
+}

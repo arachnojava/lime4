@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;gap&apos; in &apos;LIMENewMapScreen.load()&apos; to &apos;vgap&apos;&#x0D;&#x0A;- Original project: &apos;LIME&apos;&#x0D;&#x0A;- Original element: &apos;LIMENewMapScreen.load().gap&apos;&#x0D;&#x0A;- Renamed element: &apos;gap&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;gap&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;{LIMENewMapScreen.java[LIMENewMapScreen~load@gap!3432!3450!3442!3444!I!67108880!false" name="vgap" references="true" stamp="1388946318768" version="1.0"/>
+</session>

@@ -1,0 +1,9 @@
+1398917716707	Change method 'moveAnchor'
+1398917732206	Change method 'moveAnchor'
+1398977156614	Rename type 'MHTileMapView'
+1398979539049	Delete element
+1398980275095	Extract superclass 'MHTileMapView'
+1398982609651	Change method 'MHRectangularMapView'
+1398984279639	Change method 'setAnchor'
+1398984574414	Change method 'scrollMap'
+1399001207934	Delete element
